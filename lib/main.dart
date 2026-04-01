@@ -32,7 +32,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     
     setState(() {
       carrito.add(producto);
-      total += double.parse(producto['price']);
+      total += double.parse(producto['precio']);
     });
   }
 
@@ -57,21 +57,14 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     cargando = true;
 
     final url = Uri.parse(
-    'https://ecohuerta.ar/ecotienda/api/products?output_format=JSON&limit=3&offset=${(pagina - 1) * 10}');
+    'https://ecohuerta-app.onrender.com/productos?page=$pagina');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Basic Q0pTUTlQSDJRWE5UVEMxTFRBWThGV1VQTlFRTEZOS1g6',
-        'User-Agent': 'Mozilla/5.0 (Android)',
-        'Accept': 'application/json',
-      },
-    );
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
       String body = utf8.decode(response.bodyBytes);
 
-      if (!body.trim().startsWith('{')) {
+      if (!body.trim().startsWith('[')) {
         print("ERROR: respuesta no es JSON");
         print(body);
         cargando = false;
@@ -80,41 +73,9 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
 
       final data = json.decode(body);
 
-      List lista = data['products'];
+      List lista = data;
 
-      List productosDetallados = [];
-
-      for (var prod in lista) {
-
-        await Future.delayed(const Duration(milliseconds: 300));
-
-        final detalleUrl = Uri.parse(
-          'https://ecohuerta.ar/ecotienda/api/products/${prod['id']}?output_format=JSON');
-
-        final detalleResponse = await http.get(
-          detalleUrl,
-          headers: {
-            'Authorization': 'Basic Q0pTUTlQSDJRWE5UVEMxTFRBWThGV1VQTlFRTEZOS1g6',
-            'User-Agent': 'Mozilla/5.0 (Android)',
-            'Accept': 'application/json',
-          },
-        );
-
-        if (detalleResponse.statusCode == 200) {
-          final detalle = json.decode(utf8.decode(detalleResponse.bodyBytes));
-          var producto = detalle['product'];
-
-          String? idImagen;
-
-          try {
-            idImagen = producto['associations']['images'][0]['id'];
-          } catch (e) {}
-
-          producto['id_imagen'] = idImagen;
-
-          productosDetallados.add(producto);
-        }
-      }
+      List productosDetallados = lista;
 
       setState(() {
         productos.addAll(productosDetallados);
@@ -159,9 +120,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
 
                 final producto = productos[index];
 
-                String nombre = producto['name'] is Map
-                    ? producto['name']['language']['value']
-                    : producto['name'].toString();
+                String nombre = producto['nombre'] ?? 'Sin nombre';
 
                 String imagenUrl = producto['id_imagen'] != null
                     ? "https://ecohuerta.ar/ecotienda/api/images/products/${producto['id']}/${producto['id_imagen']}"
@@ -189,7 +148,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                     ),
                     title: Text(nombre),
                     subtitle: Text(
-                      "Precio: \$${double.parse(producto['price']).toStringAsFixed(0)}",
+                      "Precio: \$${double.parse(producto['precio']).toStringAsFixed(0)}",
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.add_shopping_cart),

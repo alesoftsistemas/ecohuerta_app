@@ -61,7 +61,7 @@ app.get('/productos', async (req, res) => {
 
       productos.push({
         id: p.id,
-        nombre: p.name?.language?.value || 'Sin nombre',
+        nombre: p.name?.language?.[0]?.value || 'Sin nombre',
         precio: p.price,
         id_imagen: idImagen,
       });
