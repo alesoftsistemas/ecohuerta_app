@@ -53,18 +53,32 @@ app.get('/productos', async (req, res) => {
       );
 
       let p = detalle.data.product;
+      console.log("NAME RAW:");
+      console.log(JSON.stringify(p.name, null, 2));
 
       let idImagen = null;
       try {
         idImagen = p.associations.images[0].id;
       } catch {}
 
-      productos.push({
+      let nombre = 'Sin nombre';
+
+        try {
+        if (Array.isArray(p.name?.language)) {
+            nombre = p.name.language[0].value;
+        } else if (typeof p.name?.language === 'object') {
+            nombre = p.name.language.value;
+        } else if (typeof p.name?.language === 'string') {
+            nombre = p.name.language;
+        }
+        } catch {}
+
+        productos.push({
         id: p.id,
-        nombre: p.name?.language?.[0]?.value || 'Sin nombre',
+        nombre: nombre,
         precio: p.price,
         id_imagen: idImagen,
-      });
+        });
     }
 
     res.json(productos);
