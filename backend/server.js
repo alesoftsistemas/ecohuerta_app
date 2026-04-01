@@ -67,7 +67,9 @@ app.get('/productos', async (req, res) => {
         id: p.id,
         nombre: nombre,
         precio: p.price,
-        id_imagen: idImagen,
+        imagen: idImagen
+            ? `https://ecohuerta.ar/ecotienda/api/images/products/${p.id}/${idImagen}`
+            : null,
         });
     }
 
