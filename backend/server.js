@@ -61,17 +61,7 @@ app.get('/productos', async (req, res) => {
         idImagen = p.associations.images[0].id;
       } catch {}
 
-      let nombre = 'Sin nombre';
-
-        try {
-        if (Array.isArray(p.name?.language)) {
-            nombre = p.name.language[0].value;
-        } else if (typeof p.name?.language === 'object') {
-            nombre = p.name.language.value;
-        } else if (typeof p.name?.language === 'string') {
-            nombre = p.name.language;
-        }
-        } catch {}
+      let nombre = p.name || 'Sin nombre';
 
         productos.push({
         id: p.id,
